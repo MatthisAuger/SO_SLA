@@ -14,7 +14,7 @@ import datetime
 from netCDF4 import Dataset
 import matplotlib.path as mpath
 import sys
-sys.path.insert(0, '/usr/home/mauger/support/')
+sys.path.insert(0, '../support/')
 import functions
 import imp
 imp.reload(functions)
@@ -26,34 +26,26 @@ from astropy.utils.data import get_pkg_data_filename
 from astropy.convolution import convolve
 from scipy.signal import welch
 from scipy.interpolate import interp1d
-d = datetime.datetime(2019,3,15)
+
+
+file_unfiltered = "/net/ether/data/proteo1/mauger/Data/SLA/v4/final_product/dt_antarctic_multimission_sea_level_uv_20130401_20193107.nc"
+file_filtered = "/net/ether/data/proteo1/mauger/Data/SLA/v4/final_product/final_prod_filtered_nonan.nc"
 
 variables = []
 
-D = Dataset("/net/ether/data/proteo1/mauger/Data/SLA/v4/final_product/dt_antarctic_multimission_sea_level_uv_20130401_20193107.nc")
+#Unfiltered dataset
+D = Dataset(file_filtered)
 t = D["time"][:]
 SLA = D["sla"][:]
-
 lon = D["longitude"][:].data
 lat = D["latitude"][:].data
 D.close()
 
-
-#dataset =Dataset("/net/ether/data/proteo1/mauger/Data/SLA/unbiased/monomission/S3A_2013_2019_unbiased_filtered_v2_werr.nc",'w')
-dataset =Dataset("/net/ether/data/proteo1/mauger/Data/SLA/v4/final_product/final_prod_filtered_nonan.nc")
+#Unfiletered dataset
+dataset =Dataset(file_unfiltered)
 SLA_f = dataset["SLA"][:]
 dataset.close()
-"""
-f = plt.figure()
-ax = functions.ax_map(f,1,1,1,-50)
-cs  = ax.pcolormesh(lon,lat,SLA[:,:,2],vmin = -0.20,vmax = 0.20, cmap = "bwr", transform = ccrs.PlateCarree())
 
-f = plt.figure()
-ax = functions.ax_map(f,1,1,1,-50)
-cs  = ax.pcolormesh(lon,lat,SLA_filtered[:,:,2],vmin = -0.20,vmax = 0.20, cmap = "bwr", transform = ccrs.PlateCarree())
-
-plt.show()
-"""
 plt.figure()
 
 for d in [120,400,600,900,100]:
@@ -80,7 +72,7 @@ for d in [120,400,600,900,100]:
 
 		x_freqs = np.empty(shp)
 		x_power = np.empty(shp)
-		#pdb.set_trace()
+
 		for i in range(0, shp[1]):
 			f, pw = welch(g_slice[:,i], fsx, scaling='density')
 			x_freqs[:,i] = f
